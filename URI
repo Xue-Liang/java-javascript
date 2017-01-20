@@ -2,11 +2,15 @@ var URI = {
   getParameters:function() {
       var map = new Object();
       var kvs = window.location.search.split('?');
-      if (kvs.length > 0) {
+      if (kvs.length > 1) {
         kvs = kvs[1].split('&');
         for (var i = 0; i < kvs.length; i++) {
           var kv = kvs[i].split('=');
-          map[kv[0]] = decodeURIComponent(kv[1]);
+          if(kv.length==2){
+             map[kv[0]] = decodeURIComponent(kv[1]);
+          }else if(kv.length=1){
+             map[kv[0]]="";
+          }
         }
       }
       return map;

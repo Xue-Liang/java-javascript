@@ -24,7 +24,7 @@ public class MongoDao{
  * Created by xue on 17-1-16.
  */
 public class MongoReader {
-
+    private static Logger logger = LoggerFactory.getLooger(MongoReader.class);
     protected MongoClient mongoCient = null;
 
     public MongoReader(String[] hosts, String databaseName, String userName, String password) {
@@ -44,8 +44,6 @@ public class MongoReader {
         credentials.add(credential.withMechanismProperty("authenticationMechanism", "MONGODB-CR"));
 
         MongoClientOptions.Builder builder = new MongoClientOptions.Builder();
-        builder.socketTimeout(Integer.MAX_VALUE);
-        builder.connectTimeout(Integer.MAX_VALUE);
         builder.connectTimeout(5000);
         builder.requiredReplicaSetName("gagrep");
         builder.readPreference(ReadPreference.nearest());
@@ -72,7 +70,7 @@ public class MongoReader {
             try {
                 this.mongoCient.close();
             } catch (Exception e) {
-
+               logger.error("关闭mongoClient时发生异常.",e);
             }
         }
     }
@@ -84,6 +82,7 @@ public class MongoReader {
  * Created by xue on 17-1-16.
  */
 public class MongoWriter extends MongoReader {
+   private static Logger logger = LoggerFactroy.getLogger(MongoWriter.class);
     /**
      * @param host         "192.168.6.223"
      * @param port         17017
@@ -104,22 +103,6 @@ public class MongoWriter extends MongoReader {
         List<Document> fails = new ArrayList<>(docs.size());
         while (it.hasNext()) {
             Document doc = it.next();
-            String tsuuid = (String) doc.get("tsuuid");
-            if (tsuuid != null && (tsuuid = tsuuid.trim()).length() < 1) {
-                doc.remove("tsuuid");
-            }
-            String uniqueId = (String) doc.get("uniqueId");
-            if (uniqueId != null && (uniqueId = uniqueId.trim()).length() < 1) {
-                doc.remove("uniqueId");
-            }
-            String billfileName = (String) doc.get("billfileName");
-            if (billfileName != null && (billfileName = billfileName.trim()).length() < 1) {
-                doc.remove(billfileName);
-            }
-            String billMergeKey = (String) doc.get("billMergeKey");
-            if (billMergeKey != null && (billMergeKey.trim()).length() < 1) {
-                doc.remove("billMergeKey");
-            }
             boolean success = this.write(databaseName, collectionName, doc);
             if (!success) {
                 fails.add(doc);
@@ -135,7 +118,7 @@ public class MongoWriter extends MongoReader {
             collection.insertOne(doc);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("插入数据时发生异常.",e);
             return false;
         }
     }

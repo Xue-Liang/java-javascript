@@ -4,16 +4,16 @@ import java.io.*;
  * Created by xue on 17-1-19.
  */
 public class ObjectWriter {
-    public static void writeObject(Object obj, OutputStream fos) {
+    public static void writeObject(Object obj, OutputStream os) {
         if (obj == null) {
             System.out.println("obj object is null");
             return;
         }
-        if (fos == null) {
-            System.out.println("fos is null");
+        if (os == null) {
+            System.out.println("os is null");
             return;
         }
-        try (ObjectOutputStream os = new ObjectOutputStream(fos)) {
+        try (ObjectOutputStream os = new ObjectOutputStream(os)) {
             os.writeObject(obj);
         } catch (Exception e) {
 

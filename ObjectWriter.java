@@ -6,11 +6,9 @@ import java.io.*;
 public class ObjectWriter {
     public static void writeObject(Object obj, OutputStream os) {
         if (obj == null) {
-            System.out.println("obj is null");
             return;
         }
         if (os == null) {
-            System.out.println("os is null");
             return;
         }
         try (ObjectOutputStream os = new ObjectOutputStream(os)) {

@@ -4,17 +4,26 @@ import java.io.*;
  * Created by xue on 17-1-19.
  */
 public class ObjectWriter {
-    public static void writeObject(Object obj, OutputStream os) {
+
+    private static Logger logger = LoggerFactory.getLogger(ObjectWriter.class);
+
+    public static boolean writeObject(Object obj, OutputStream os) {
         if (obj == null) {
-            return;
+            return false;
         }
         if (os == null) {
-            return;
+            return false;
         }
-        try (ObjectOutputStream os = new ObjectOutputStream(os)) {
-            os.writeObject(obj);
-        } catch (Exception e) {
+        if (!(obj instanceof Serializable)) {
+            return false;
+        }
 
+        try (ObjectOutputStream oos = new ObjectOutputStream(os)) {
+            oos.writeObject(obj);
+            return true;
+        } catch (Exception e) {
+            logger.error("Object 序列化后写入文件时发生异常.", e);
+            return false;
         }
     }
 
@@ -23,12 +32,21 @@ public class ObjectWriter {
         if (!dir.exists()) {
             dir.mkdirs();
         }
-        File f = new File(path + "/" + fileName);
+        File f = new File((path.endsWith(File.separator) ? path : (path + File.separator)) + fileName);
         try {
             return new FileOutputStream(f);
         } catch (FileNotFoundException e) {
+            logger.error("创建文件输出流时发生异常.", e);
             return null;
         }
     }
 
+    public static boolean writeObject(String path, String fileName, Object obj) {
+        try (OutputStream os = createFileOutputStream(path, fileName)) {
+            return writeObject(obj, os);
+        } catch (Exception e) {
+            logger.error("Object 写入文件时发生异常.", e);
+            return false;
+        }
+    }
 }

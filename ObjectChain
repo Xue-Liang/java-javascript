@@ -1,0 +1,89 @@
+/**
+ * Created by Xue Liang On 2017-07-11
+ */
+public class ObjectChain<T> implements java.util.Iterator<T>, Iterable {
+
+    private ObjectNode<T> first;
+    private ObjectNode<T> cursor = null;
+
+    public void push(T obj) {
+        ObjectNode<T> node = new ObjectNode(obj);
+        if (first == null) {
+            this.first = node;
+            this.cursor = this.first;
+        } else {
+            this.first.prefix = node;
+            node.next = this.first;
+            this.first = node;
+        }
+    }
+
+    public T pop() {
+        if (this.first == null) {
+            return null;
+        }
+        ObjectNode<T> on = this.first;
+        this.first = this.first.next;
+        this.first.prefix = null;
+        this.cursor = this.first;
+        return on.data;
+    }
+
+    @Override
+    public boolean hasNext() {
+        boolean hasNext = this.cursor != null;
+        return hasNext;
+    }
+
+    public void clear() {
+        this.first = null;
+        this.cursor = this.first;
+    }
+
+    @Override
+    public T next() {
+        if (this.cursor == null) {
+            return null;
+        }
+        T value = cursor.getData();
+        cursor = cursor.next();
+        return value;
+    }
+
+    @Override
+    public void remove() {
+        if (cursor != null) {
+            cursor.prefix.next = cursor.next;
+            cursor = cursor.next;
+        }
+    }
+
+    @Override
+    public Iterator iterator() {
+        this.cursor = this.first;
+        return this;
+    }
+
+    private class ObjectNode<T> {
+        private ObjectNode<T> prefix = null;
+        private T data;
+        private ObjectNode<T> next = null;
+
+
+        public ObjectNode(T obj) {
+            this.data = obj;
+        }
+
+        public T getData() {
+            return this.data;
+        }
+
+        public ObjectNode<T> next() {
+            return this.next;
+        }
+
+        public ObjectNode<T> prefix() {
+            return this.prefix;
+        }
+    }
+}

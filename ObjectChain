@@ -1,7 +1,7 @@
 /**
  * Created by Xue Liang On 2017-07-11
  */
-public class ObjectChain<T> implements java.util.Iterator<T>, Iterable {
+public class ObjectChain<T> implements java.util.Iterator<T>, Iterable<T> {
 
     private ObjectNode<T> first;
     private ObjectNode<T> cursor = null;
@@ -24,15 +24,16 @@ public class ObjectChain<T> implements java.util.Iterator<T>, Iterable {
         }
         ObjectNode<T> on = this.first;
         this.first = this.first.next;
-        this.first.prefix = null;
+        if (first != null) {
+            this.first.prefix = null;
+        }
         this.cursor = this.first;
         return on.data;
     }
 
     @Override
     public boolean hasNext() {
-        boolean hasNext = this.cursor != null;
-        return hasNext;
+        return this.cursor != null;
     }
 
     public void clear() {
@@ -40,6 +41,11 @@ public class ObjectChain<T> implements java.util.Iterator<T>, Iterable {
         this.cursor = this.first;
     }
 
+    /**
+     * cursor move to next node
+     *
+     * @return
+     */
     @Override
     public T next() {
         if (this.cursor == null) {
@@ -54,12 +60,11 @@ public class ObjectChain<T> implements java.util.Iterator<T>, Iterable {
     public void remove() {
         if (cursor != null) {
             cursor.prefix.next = cursor.next;
-            cursor = cursor.next;
         }
     }
 
     @Override
-    public Iterator iterator() {
+    public Iterator<T> iterator() {
         this.cursor = this.first;
         return this;
     }
